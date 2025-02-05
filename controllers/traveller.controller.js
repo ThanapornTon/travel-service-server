@@ -1,17 +1,27 @@
 
 const Traveller = require("../models/traveller.model");
+const Travel = require("../models/travel.model");   
+const bcrypt = require("bcrypt");
 
-exports.createTraveller = async (req, res) => {
-    try {
-        const result = await Traveller.create(req.body);
-        res.status(201).json({
-            message: "Traveller created successfully",
-            data: result
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+    
+    exports.createTraveller = async (req, res) => {
+        try {
+            //ตัวแปรเก็บข้อมูลที่ส่งมากับข้อมูลรูปภาพที่จะเอาไปบันทึกลงตาราง
+    
+            let data = {
+                ...req.body,
+                travellerImage: req.file ? req.file.path.replace("images\\traveller\\", "") : ""
+            }
+    
+            const result = await Traveller.create(data);
+            res.status(201).json({
+                message: 'Traveller created successfully',
+                data: result
+            });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    };
 
 exports.checkloginTraveller = async (req, res) => {
     try {
@@ -37,7 +47,24 @@ exports.checkloginTraveller = async (req, res) => {
 exports.editTraveller = async (req, res) => {
 
     try {
-        const result = await Traveller.update(req.body, {
+
+        
+        let data = {
+            ...req.body,
+
+        }
+
+        if (req.file) {
+           const traveller  = await Traveller.findOne({where: {travellerId: req.params.travellerId,}});  
+
+           if(traveller.travellerImage){
+            const oldImagePath = `./images/traveller/${traveller.travellerImage}`;
+
+            fs.unlink(oldImage, (err) => {
+            });
+            
+            } 
+        }const result = await Traveller.update(req.body, {
             where: {
                 travellerId: req.params.travellerId,
             }
@@ -49,7 +76,7 @@ exports.editTraveller = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+
 
 exports.deleteTraveller = async (req, res) => {
 
